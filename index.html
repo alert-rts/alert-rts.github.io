@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ALERT — Agents for Language-Guided Execution of Revocable Tasks in Real-Time Strategy Games</title>
+<meta name="description" content="ALERT benchmarks live, revocable human instructions to language-guided agents in full Command &amp; Conquer: Red Alert 2 matches. Anonymous submission under double-blind review.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="#top">ALERT</a>
+    <nav>
+      <a href="#demo">Demo</a>
+      <a href="#overview">Overview</a>
+      <a href="#system">System</a>
+      <a href="#results">Results</a>
+      <a href="#bibtex">BibTeX</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="top">
+  <div class="wrap">
+    <p class="badge">Anonymous submission &middot; under double-blind review at ICLR</p>
+    <h1>ALERT</h1>
+    <p class="subtitle">Agents for <span class="hl">L</span>anguage-guided <span class="hl">E</span>xecution of <span class="hl">R</span>evocable <span class="hl">T</span>asks in real-time strategy games</p>
+    <p class="hero-lede">
+      A commander can order a retreat, then revise the order before the force reaches safety.
+      An agent can win while disobeying both instructions. ALERT benchmarks fast System&nbsp;1
+      execution, deliberative System&nbsp;2 planning, and continuing human authority in full
+      <em>Command&nbsp;&amp;&nbsp;Conquer: Red&nbsp;Alert&nbsp;2</em> matches — scoring requested
+      effects separately from victory.
+    </p>
+    <div class="btn-row">
+      <a class="btn btn-primary" href="#" title="Link will be added when the preprint is public">Paper (PDF)</a>
+      <a class="btn" href="#demo">Watch the demo</a>
+      <a class="btn btn-ghost" href="#" title="Released upon publication">Code &amp; corpus — coming soon</a>
+    </div>
+
+    <div class="video-frame" id="demo">
+      <video controls muted playsinline preload="metadata" poster="assets/poster.jpg">
+        <source src="assets/alert_demo.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
+      <p class="caption">A match under live human authority: autonomous attack &rarr; commander&rsquo;s retreat order &rarr;
+      System&nbsp;2 installs a revocable commitment &rarr; System&nbsp;1 routes units home while the engine keeps advancing &rarr;
+      hold, re-arm, counterattack. <em>Illustrative concept render; real gameplay capture will replace this clip.</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KEY NUMBERS ================= -->
+<section class="statband">
+  <div class="wrap stat-grid">
+    <div class="stat"><div class="stat-value">15&thinsp;t/s</div><div class="stat-label">Engine keeps advancing during inference — clock-paced, waiting for nobody</div></div>
+    <div class="stat"><div class="stat-value">98 &rarr; 79</div><div class="stat-label">Planned directive occurrences reaching release across 24 clock-paced matches</div></div>
+    <div class="stat"><div class="stat-value">7 / 7</div><div class="stat-label">Released retreat directives that produced accepted movement orders</div></div>
+    <div class="stat"><div class="stat-value">6 / 7</div><div class="stat-label">Commitments retired by a tracking defect before controller-confirmed arrival</div></div>
+    <div class="stat"><div class="stat-value">10 / 10</div><div class="stat-label">Applicable runs with confirmed targeted revocation in the countermand probe</div></div>
+    <div class="stat"><div class="stat-value">144</div><div class="stat-label">Tick-paced runs across six models, 12 scripts, two start orientations</div></div>
+  </div>
+</section>
+
+<!-- ================= OVERVIEW ================= -->
+<main>
+<section class="wrap section" id="overview">
+  <h2>Victory is not evidence of obedience</h2>
+  <div class="prose">
+    <p>
+      Real-time strategy demands two things at once: rapid responses to a changing battlefield,
+      and plans that persist across those responses. Under human direction, both must remain
+      <strong>answerable to orders that can change during play</strong>. Existing RTS agents are
+      evaluated by whether they win; ALERT asks a different question — did the agent do what it
+      was told, keep doing it while the world moved, and stop when the order was withdrawn?
+    </p>
+    <p>ALERT contributes three things:</p>
+    <ul>
+      <li><strong>A benchmark for live, revocable instructions.</strong> Evaluator-side contracts specify
+        scope, duration, constraints, and revocation, with external world-state predicates where implemented.
+        Matched controls separate requested effects from autonomous play. The paper corpus fixes 12 scripts
+        and 49 directive cards at two start orientations, giving 98 planned occurrences.</li>
+      <li><strong>A reference harness for responsive execution under human authority.</strong> Backend-independent
+        System&nbsp;2 understanding sets typed commitments in a ledger outside the transcript; System&nbsp;1 scheduling
+        adapts to state, and controllers act under recorded ownership — without a new language-model plan for every
+        engine action.</li>
+      <li><strong>Diagnosis from multiple kinds of evidence.</strong> Behavioral-intent readings, commitment and
+        controller traces, independent world-state predicates, and post-hoc position value are joined per tick —
+        distinguishing the behavior attempted, the authority carrying it, and the effect observed.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= SYSTEM ================= -->
+<section class="section section-alt" id="system">
+  <div class="wrap">
+    <h2>One model, three roles — and an engine that waits for nobody</h2>
+    <div class="prose">
+      <p>
+        The <strong>Commander</strong> (a person) sets goals and acceptable risk in free text, and may revise or
+        revoke them mid-match. A language layer plays three roles with one model: the <strong>Liaison</strong> takes
+        the instruction and reports back; the <strong>Planner</strong> turns intent into ordered, constrained tasks
+        written to an order ledger; the <strong>Controller</strong> picks the target, the timing, and the skill call.
+        Below the language layer, a fixed, never-trained <strong>skill harness</strong> executes calls and chooses
+        units and destinations. The engine advances 15 logic steps per second during inference — a plan can go stale
+        before it arrives, and the executor must act while awaiting further deliberation.
+      </p>
+    </div>
+    <figure>
+      <img src="assets/fig1_roles.png" alt="Role and interface graph: Commander above a language layer of Liaison, Planner and Controller, over a fixed skill harness and the RTS environment.">
+      <figcaption><strong>Figure 1.</strong> The static role and interface graph. Every payload is typed; goals are set at the
+      commander boundary and nowhere else; no edge runs from the language layer to the engine — every engine write is the harness&rsquo;s own.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>
+        System&nbsp;1 chooses how to act on new observations, but that freedom does not authorize it to replace the
+        commander&rsquo;s objective: a controller that resumes autonomous attack during a standing retreat defeats the
+        instruction even when language understanding was correct. Conversely, a faithful executor cannot repair a
+        misinterpreted objective by acting faster. The ledger stores verbatim orders, typed commitments, ownership,
+        and revocation state outside model memory — cancellation retires obligations without reversing accepted engine actions.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LIFECYCLE ================= -->
+<section class="wrap section" id="lifecycle">
+  <h2>A directive over its full lifecycle</h2>
+  <div class="prose">
+    <p>
+      An installed plan is neither execution nor completion. ALERT records every step between them:
+      the commander&rsquo;s sentence, the commitment it becomes, the engine orders it authorizes, and the
+      world frames that test whether the requested effect actually happened.
+    </p>
+  </div>
+  <figure>
+    <img src="assets/fig2a_map.jpg" alt="Annotated Red Alert 2 game frame showing a geo-aware retreat: movement order for 11 of 18 units, retreat target coordinates, hold and production annotations.">
+    <figcaption><strong>Figure 2a.</strong> A single recorded execution frame at game time 04:54, read in badge order:
+    retreat target, movement of 11 of 18 units, terrain annotation with chokepoints, a 7-unit guard hold, and production continuing.</figcaption>
+  </figure>
+  <figure>
+    <img src="assets/fig2b_timeline.png" alt="Timeline of two directives across their lifecycle, one row per step, with three enlarged world frames aligned beside the rows.">
+    <figcaption><strong>Figure 2b.</strong> Both directives of a match over their lifecycle — &ldquo;Everyone pull back to base&rdquo;
+    then &ldquo;pull back, wait until 4 heavy tanks&rdquo; — 392 unit orders, none refused, with world frames aligned to the rows.</figcaption>
+  </figure>
+</section>
+
+<!-- ================= GATES ================= -->
+<section class="section section-alt" id="gates">
+  <div class="wrap">
+    <h2>Six gates: where a released order stops governing units</h2>
+    <div class="prose">
+      <p>
+        Diagnosis follows an order through six ordered gates — <strong>Goal, Plan, Tracking, Grounding, Execution,
+        Verification</strong>. Each gate is a place a released order can stop governing units while the engine keeps
+        advancing, and each names the component a confirmed failure there would repair. A stop is an evidence boundary,
+        not automatically a failure: of 588 planned occurrences in six-model tick-paced records, 319 stop at Goal for
+        want of a gold objective, 41 at Grounding, 23 with no answer at all.
+      </p>
+    </div>
+    <figure>
+      <img src="assets/fig3_gates.png" alt="Diagram of six ordered execution gates from Goal to Verification, each listing failure modes and repair targets.">
+      <figcaption><strong>Figure 3.</strong> The six ordered execution gates. One typed line in, revisable and revocable mid-match;
+      the engine advances through every gate; nothing here pauses the match.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= RESULTS ================= -->
+<section class="wrap section" id="results">
+  <h2>What the harness caught</h2>
+  <div class="prose">
+    <p>
+      The strongest current mechanism finding comes from a 24-match clock-paced study with one model, map, and opponent.
+      <strong>All seven released retreat directives produced accepted movement orders — yet a tracking defect retired six
+      commitments 0&ndash;2 ticks after discharge, before controller-confirmed group arrival</strong>, with the units still short
+      of the rally point. Controller-confirmed arrival held in only 1/7 cases; the independent world-state predicate found it
+      in 3/7. Independent world trajectories also expose disagreement with controller completion reports.
+    </p>
+  </div>
+  <figure>
+    <img src="assets/fig4_release.png" alt="Horizontal bar chart of release accounting for 98 planned directive occurrences across plan-shape classes: released, reached but never released, and never reached.">
+    <figcaption><strong>Figure 4.</strong> Release accounting for the 98 planned directive occurrences of the 24 clock-paced runs:
+    98 planned &rarr; 81 reached &rarr; 79 released. Release measures exposure, not obedience.</figcaption>
+  </figure>
+  <div class="prose">
+    <h3>Revocation, models, and scripts</h3>
+    <ul>
+      <li><strong>Direct revocation works where tested.</strong> Ten of twelve runs reach the countermand branch; every applicable
+        run retires exactly the guard order and carries no later guard-family mission.</li>
+      <li><strong>Script dominates outcome.</strong> Across 144 tick-paced runs (six models, 12 scripts, two orientations), the
+        directive script dominates measured match outcome and level reached. Model identity is still distinguishable at intake:
+        Claude Opus 5 averages 0.903 versus GPT-5.6 Sol&rsquo;s 0.665, with 14 strict wins and no losses in 24 matched groups
+        (p&nbsp;=&nbsp;0.0001) — associations, not causal execution scores.</li>
+      <li><strong>Evidence stays honest about its own limits.</strong> Of 79 released occurrences, 23 carry an implemented external
+        predicate; gold labels, verification and refusal accuracy, collateral cost, and human comparison remain incomplete — reported
+        as coverage gaps rather than hidden in an aggregate score.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= SELF-EVOLVE ================= -->
+<section class="section section-alt" id="selfevolve">
+  <div class="wrap">
+    <h2>Diagnosis feeds repair — of the harness, not the weights</h2>
+    <div class="prose">
+      <p>
+        In ALERT, <em>self-evolve</em> applies diagnosis to harness repair: a coding agent reads trajectories, faults, and gates,
+        revises the localized component with tests, then freezes the revision for re-measurement. Model weights stay fixed.
+        Scheduling, countermand, recording, and tank-micro repairs are recorded under explicit comparison boundaries — established
+        as harness changes, not acceptance or win-rate gains. Diagnosis supports tested repairs; it does not yet establish
+        autonomous improvement.
+      </p>
+    </div>
+    <figure class="fig-narrow">
+      <img src="assets/fig5_selfevolve.png" alt="Loop diagram: run frozen evaluation suite, read trajectories faults and gates, revise code contracts and tests, freeze revision and re-measure; persistent record of failure cases and compressed resolved history.">
+      <figcaption><strong>Figure 5.</strong> The evaluation-and-revision loop. A revised harness is frozen before re-measurement;
+      failure cases and compressed resolved history persist across iterations.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ================= BIBTEX ================= -->
+<section class="wrap section" id="bibtex">
+  <h2>BibTeX</h2>
+  <pre class="bibtex">@inproceedings{
+  anonymous2027alert,
+  title   = {{ALERT}: Agents for Language-Guided Execution of Revocable Tasks in Real-Time Strategy Games},
+  author  = {Anonymous},
+  booktitle = {Submitted to the International Conference on Learning Representations},
+  year    = {2027},
+  note    = {Under double-blind review}
+}</pre>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Anonymous authors &middot; paper under double-blind review. This page exists to give reviewers a visual companion to the
+    submission; code, corpus, and gameplay footage will be released upon publication.</p>
+  </div>
+</footer>
+
+</body>
+</html>
