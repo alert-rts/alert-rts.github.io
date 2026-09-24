@@ -103,9 +103,15 @@ body {
   transition: background .15s, border-color .15s;
 }
 .btn:hover { background: rgba(255,255,255,0.09); border-color: #3a4a72; }
-.btn-primary { background: var(--accent); border-color: var(--accent); }
-.btn-primary:hover { background: #c93424; border-color: #c93424; }
-.btn-ghost { color: var(--hero-ink-2); }
+.btn-primary { background: #2464d8; border-color: #2464d8; color: #fff; }
+.btn-primary:hover { background: #1b53ba; border-color: #1b53ba; }
+.btn-disabled {
+  color: #7c8699;
+  background: rgba(255,255,255,0.03);
+  border-color: #2a3450;
+  cursor: default;
+}
+.btn-disabled:hover { background: rgba(255,255,255,0.03); border-color: #2a3450; }
 
 /* ---------- video ---------- */
 .video-frame { max-width: 920px; margin: 0 auto; }
